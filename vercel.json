@@ -2,8 +2,8 @@
   "version": 2,
   "routes": [
     { "src": "/api/webhook", "dest": "/api/index.py" },
-    { "src": "/demo",        "dest": "/api/demo.py"  },
     { "src": "/api/chat",    "dest": "/api/demo.py"  },
-    { "src": "/",            "dest": "/api/demo.py"  }
+    { "src": "/demo",        "dest": "/api/demo.py"  },
+    { "src": "/(.*)",        "dest": "/api/demo.py"  }
   ]
 }
