@@ -29,6 +29,8 @@ HTML_PAGE = '<!DOCTYPE html>\n<html lang="zh">\n<head>\n<meta charset="UTF-8">\n
 STD_EXCLUSIONS = '马来西亚签证、公务自理、旅游意外险、机票与机场税、酒店行李搬运、自费项目与个人消费，行程中未提到的其他费用，行程以外的景点，医疗费，交通延阻，罢工及其他不可抗拒的因素所致的额外费用。'
 STD_REMARK = '备注：酒店价格会根据酒店的房态而更改，我处并没有预定任何房间。'
 
+WORD_GEN_PROMPT = '你是行程单数据提取助手。根据对话历史，提取行程信息，输出以下格式。\n\n只输出 JSON，不要有任何其他文字：\n\n[WORD_JSON_START]\n{\n  "title": "目的地+天数（如：吉隆坡5天4晚）",\n  "date": "出行日期（如：2026年05月29日）",\n  "pax_for_quote": "报价人数（纯数字，如：30）",\n  "price_double": "2人1房每人价格（纯数字，如：3150）",\n  "price_single_supp": "单间差价（纯数字，如：1380）",\n  "hotel": "酒店名称+星级+晚数（如：吉隆坡喜来登福朋4*酒店或同级（4晚））",\n  "transport": "交通类型（如：40座旅游巴士）",\n  "guide": "中文导游",\n  "meals_detail": "用餐详情（如：酒店含早餐、6次正餐（餐标RMB100））",\n  "tickets": "门票项目（如：云顶缆车、马六甲游船）",\n  "gratuity": "包含司机导游小费",\n  "insurance": "当地旅行社责任险",\n  "days": [\n    {"day": "第一天", "date": "5月29日", "meals": "X/X/X", "activity": "出发城市-吉隆坡\\n依航班时间，抵达后入住酒店", "stay": "吉隆坡"},\n    {"day": "第二天", "date": "5月30日", "meals": "早/中/晚", "activity": "吉隆坡市区\\n景点活动描述", "stay": "吉隆坡"}\n  ]\n}\n[WORD_JSON_END]\n\nmeals 规则：含→汉字（早/中/晚），不含→X。第一天通常全X，最后一天早/X/X。\n如信息不全，用合理默认值填入。行程天数根据对话中的天数生成对应行数。'
+
 # ─── helpers ────────────────────────────────────────────────
 
 def get_history(phone):
@@ -301,8 +303,7 @@ class handler(BaseHTTPRequestHandler):
 
         elif path == "/api/word":
             msgs = data.get("messages",[])
-            word_sys = SYSTEM_PROMPT + "\n\n请根据以上对话立即生成 Word JSON，只输出 [WORD_JSON_START]...[WORD_JSON_END]，不要其他文字。"
-            reply = ask_claude(msgs + [{"role":"user","content":"word"}], word_sys)
+            reply = ask_claude(msgs, WORD_GEN_PROMPT)
             raw_json = parse_block(reply,"[WORD_JSON_START]","[WORD_JSON_END]")
             if not raw_json:
                 self._json(500,{"error":"无法生成行程数据，请先和七仔确认行程信息"}); return
