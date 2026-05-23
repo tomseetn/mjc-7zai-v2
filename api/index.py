@@ -177,7 +177,7 @@ def build_word(data):
 
     # Disclaimer
     dp=doc.add_paragraph();sp(dp,5,0)
-    f(dp.add_run("                     以上行程仅供参考，我社有权根马来西亚假期的情况调整！"),8.5,bold=True)
+    f(dp.add_run("                     以上行程仅供参考，我社有权根马来西亚假期的情况调整！"),11,bold=True)
 
     # Pricing
     pax=data.get("pax_for_quote",""); pd=data.get("price_double",""); ps=data.get("price_single_supp","")
