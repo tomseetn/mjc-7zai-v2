@@ -244,6 +244,9 @@ class handler(BaseHTTPRequestHandler):
 
         elif path=="/api/word":
             msgs=data.get("messages",[])
+            # Guard: Claude needs ≥1 message; inject template request if conversation is empty
+            if not msgs:
+                msgs=[{"role":"user","content":"请生成一份空白行程报价单模板，目的地和所有字段都填待定，包含5天行程示例"}]
             reply=ask_claude(msgs,WORD_GEN_PROMPT)
             raw_json=extract_block(reply,"[WORD_JSON_START]","[WORD_JSON_END]")
             if not raw_json:
